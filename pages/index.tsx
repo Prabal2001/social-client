@@ -10,6 +10,7 @@ import { SlOptions } from "react-icons/sl";
 import toast from "react-hot-toast";
 import { graphQLClient } from "@/clients/app";
 import { verifyUserGoogleTokenQuery } from "@/graphql/query/user";
+import { useCurrentUser } from "@/hooks/user";
 
 
 const geistSans = localFont({
@@ -65,6 +66,7 @@ const sidebarMenuItems:TwitterSidebarButton[] =[
 ]
 
 export default function Home() {
+  const{user} = useCurrentUser();
   const handleLoginWithGoogle = useCallback(async(cred:CredentialResponse) => {
     const googleToken = cred.credential;
     if(!googleToken) {
@@ -72,7 +74,6 @@ export default function Home() {
     }
     const {verifyGoogleToken} = await graphQLClient.request(verifyUserGoogleTokenQuery,{token:googleToken})
      toast.success('Verified successfully');
-     console.log(verifyGoogleToken);
      if(verifyGoogleToken) {
           window.localStorage.setItem("token",verifyGoogleToken);
      }
@@ -100,11 +101,12 @@ export default function Home() {
         <div className="col-span-5 border-r-[1px] border-l-[1px] overflow-scroll  border-slate-500">
           <FeedCard />
         </div>
-        <div className="col-span-3">
-          <div className="p-5 bg-slate-700 rounded-lg"> 
+        <div className="col-span-3 p-5">
+          {!user && <div className="p-5 bg-slate-700 rounded-lg"> 
             <h1 className="my-2 text-2xl">New To Twitter?</h1>
          <GoogleLogin onSuccess={handleLoginWithGoogle}/>
          </div>
+          }
         </div>
       </div>
     </div>
